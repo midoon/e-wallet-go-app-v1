@@ -4,6 +4,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/midoon/e-wallet-go-app-v1/domain"
 	"github.com/midoon/e-wallet-go-app-v1/dto"
+	"github.com/midoon/e-wallet-go-app-v1/helper"
 )
 
 type authApi struct {
@@ -25,7 +26,7 @@ func (auth *authApi) register(ctx *fiber.Ctx) error {
 
 	res, err := auth.userService.Register(ctx.Context(), req)
 	if err != nil {
-		return ctx.SendStatus(400)
+		return ctx.SendStatus(helper.HttpStatusErr(err))
 	}
 
 	return ctx.Status(200).JSON(res)

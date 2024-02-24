@@ -4,7 +4,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	repository "github.com/midoon/e-wallet-go-app-v1/Repository"
 	service "github.com/midoon/e-wallet-go-app-v1/Service"
-	"github.com/midoon/e-wallet-go-app-v1/internal/api"
+	"github.com/midoon/e-wallet-go-app-v1/api"
 	"github.com/midoon/e-wallet-go-app-v1/internal/component"
 	"github.com/midoon/e-wallet-go-app-v1/internal/config"
 )
