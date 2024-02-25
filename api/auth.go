@@ -29,7 +29,6 @@ func (auth *authApi) register(ctx *fiber.Ctx) error {
 
 	err := auth.userService.Register(ctx.Context(), req)
 	if err != nil {
-
 		return ctx.Status(helper.HttpStatusErr(err)).JSON(dto.ErrorResponse{
 			Status:  false,
 			Message: err.Error(),

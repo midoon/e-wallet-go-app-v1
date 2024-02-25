@@ -4,3 +4,4 @@ import "errors"
 
 var ErrRegisterUser = errors.New("error register failed")
 var ErrDuplicateData = errors.New("error data already exist")
+var ErrValidation = errors.New("error validation")

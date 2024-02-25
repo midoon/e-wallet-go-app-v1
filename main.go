@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 	repository "github.com/midoon/e-wallet-go-app-v1/Repository"
 	service "github.com/midoon/e-wallet-go-app-v1/Service"
@@ -12,9 +13,10 @@ import (
 func main() {
 
 	cnf := config.GetConfig()
+	validator := validator.New()
 	dbConnection := component.GetDBOpenConenction(cnf)
 	userRepository := repository.NewUserRepository(dbConnection)
-	userService := service.NewUserService(userRepository)
+	userService := service.NewUserService(userRepository, validator)
 
 	app := fiber.New()
 	api.NewAuthApi(app, userService)

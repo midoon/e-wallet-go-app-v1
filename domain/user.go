@@ -20,6 +20,7 @@ type User struct {
 type UserRepository interface {
 	FindById(ctx context.Context, id string) (User, error)
 	FindByEmail(ctx context.Context, email string) (User, error)
+	CountByEmail(ctx context.Context, email string) (int64, error)
 	Insert(ctx context.Context, user *User) error
 	Update(ctx context.Context, user *User) error
 }

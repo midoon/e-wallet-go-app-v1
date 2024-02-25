@@ -24,16 +24,31 @@ func (u *userRepository) FindById(ctx context.Context, id string) (domain.User, 
 
 func (u *userRepository) FindByEmail(ctx context.Context, email string) (domain.User, error) {
 	user := domain.User{}
-	d := u.db.WithContext(ctx).Where("email = ?", email).Take(&user)
-	return user, d.Error
+	err := u.db.WithContext(ctx).Where("email = ?", email).Take(&user).Error
+	if err != nil {
+		log.Println(err)
+		return domain.User{}, err
+	}
+	return user, nil
+}
+
+func (u *userRepository) CountByEmail(ctx context.Context, email string) (int64, error) {
+	var count int64
+	err := u.db.WithContext(ctx).Model(&domain.User{}).Where("email = ?", email).Count(&count).Error
+	if err != nil {
+		log.Println(err)
+		return 0, err
+	}
+	return count, nil
 }
 
 func (u *userRepository) Insert(ctx context.Context, user *domain.User) error {
-	d := u.db.WithContext(ctx).Create(user)
-	if d.Error != nil {
-		log.Fatal(d.Error)
+	err := u.db.WithContext(ctx).Create(user).Error
+	if err != nil {
+		log.Println(err)
+		return err
 	}
-	return d.Error
+	return err
 }
 
 func (u *userRepository) Update(ctx context.Context, user *domain.User) error {
