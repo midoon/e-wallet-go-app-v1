@@ -21,12 +21,24 @@ func NewAuthApi(app *fiber.App, userService domain.UserService) {
 func (auth *authApi) register(ctx *fiber.Ctx) error {
 	var req dto.UserRegisterRequest
 	if err := ctx.BodyParser(&req); err != nil {
-		return ctx.SendStatus(400)
+		return ctx.Status(helper.HttpStatusErr(err)).JSON(dto.ErrorResponse{
+			Status:  false,
+			Message: err.Error(),
+		})
 	}
 
-	res, err := auth.userService.Register(ctx.Context(), req)
+	err := auth.userService.Register(ctx.Context(), req)
 	if err != nil {
-		return ctx.SendStatus(helper.HttpStatusErr(err))
+
+		return ctx.Status(helper.HttpStatusErr(err)).JSON(dto.ErrorResponse{
+			Status:  false,
+			Message: err.Error(),
+		})
+	}
+
+	res := dto.UserRegisterResponse{
+		Status:  true,
+		Message: "success register",
 	}
 
 	return ctx.Status(200).JSON(res)

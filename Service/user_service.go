@@ -20,11 +20,15 @@ func NewUserService(userRepository domain.UserRepository) domain.UserService {
 	}
 }
 
-func (u *userService) Register(ctx context.Context, req dto.UserRegisterRequest) (dto.UserRegisterResponse, error) {
+func (u *userService) Register(ctx context.Context, req dto.UserRegisterRequest) error {
+	_, err := u.userRepository.FindByEmail(ctx, req.Email)
+	if err == nil { // email already exist
+		return helper.ErrDuplicateData
+	}
 	hashPassword, err := util.HashPassword(req.Password)
 	id := uuid.New().String()
 	if err != nil {
-		return dto.UserRegisterResponse{}, helper.ErrRegisterUser
+		return helper.ErrRegisterUser
 	}
 	user := domain.User{
 		ID:       id,
@@ -35,10 +39,7 @@ func (u *userService) Register(ctx context.Context, req dto.UserRegisterRequest)
 
 	err = u.userRepository.Insert(ctx, &user)
 	if err != nil {
-		return dto.UserRegisterResponse{}, helper.ErrRegisterUser
+		return helper.ErrRegisterUser
 	}
-	return dto.UserRegisterResponse{
-		Status:  true,
-		Message: "success register",
-	}, nil
+	return nil
 }

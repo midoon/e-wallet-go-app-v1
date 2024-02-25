@@ -19,10 +19,11 @@ type User struct {
 
 type UserRepository interface {
 	FindById(ctx context.Context, id string) (User, error)
+	FindByEmail(ctx context.Context, email string) (User, error)
 	Insert(ctx context.Context, user *User) error
 	Update(ctx context.Context, user *User) error
 }
 
 type UserService interface {
-	Register(ctx context.Context, req dto.UserRegisterRequest) (dto.UserRegisterResponse, error)
+	Register(ctx context.Context, req dto.UserRegisterRequest) error
 }
