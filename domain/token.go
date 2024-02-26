@@ -15,9 +15,7 @@ type Token struct {
 
 type TokenRepository interface {
 	Insert(ctx context.Context, token *Token) error
-	FindByUserId(ctx context.Context, userId string) (User, error)
+	FindByUserId(ctx context.Context, userId string) (Token, error)
+	CountByUserId(ctx context.Context, userId string) (int64, error)
 	Delete(ctx context.Context, userId string) error
-}
-
-type TokenService interface {
 }

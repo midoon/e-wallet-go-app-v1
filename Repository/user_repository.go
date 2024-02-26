@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"fmt"
 	"log"
 
 	"github.com/midoon/e-wallet-go-app-v1/domain"
@@ -18,8 +19,14 @@ func NewUserRepository(db *gorm.DB) domain.UserRepository {
 	}
 }
 
-func (u *userRepository) FindById(ctx context.Context, id string) (domain.User, error) {
-	panic("not implemented") // TODO: Implement
+func (u *userRepository) FindById(ctx context.Context, userId string) (domain.User, error) {
+	user := domain.User{}
+	err := u.db.WithContext(ctx).Where("user_id = ?", userId).Take(&user).Error
+	if err != nil {
+		log.Println(err)
+		return domain.User{}, err
+	}
+	return user, nil
 }
 
 func (u *userRepository) FindByEmail(ctx context.Context, email string) (domain.User, error) {
@@ -51,6 +58,15 @@ func (u *userRepository) Insert(ctx context.Context, user *domain.User) error {
 	return err
 }
 
-func (u *userRepository) Update(ctx context.Context, user *domain.User) error {
-	panic("not implemented") // TODO: Implement
+func (u *userRepository) Update(ctx context.Context, user *domain.User, userId string) error {
+	// not using db.Model because the struc and Model used is same
+	err := u.db.WithContext(ctx).Where("user_id = ?", userId).Updates(domain.User{
+		Username: user.Username,
+		Email:    user.Email,
+	}).Error
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	return nil
 }
