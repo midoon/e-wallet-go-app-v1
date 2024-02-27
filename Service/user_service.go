@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
@@ -16,6 +17,7 @@ type userService struct {
 	validate       *validator.Validate
 }
 
+// pada provider mengembalikan interface supaya ada error jika terdapat function yang belum diimplement. dan tikad menggunakan pointer pada interface return value, tetapi varibale returnnya harus pointer
 func NewUserService(userRepository domain.UserRepository, validator *validator.Validate) domain.UserService {
 	return &userService{
 		userRepository: userRepository,
@@ -30,14 +32,14 @@ func (u *userService) Register(ctx context.Context, req dto.UserRegisterRequest)
 	}
 	countEmail, err := u.userRepository.CountByEmail(ctx, req.Email)
 	if err != nil {
-		return helper.ErrRegisterUser
+		return err
 	} else if countEmail != 0 {
 		return helper.ErrDuplicateData
 	}
 	hashPassword, err := util.HashPassword(req.Password)
 	id := uuid.New().String()
 	if err != nil {
-		return helper.ErrRegisterUser
+		return err
 	}
 	user := domain.User{
 		ID:       id,
@@ -48,7 +50,25 @@ func (u *userService) Register(ctx context.Context, req dto.UserRegisterRequest)
 
 	err = u.userRepository.Insert(ctx, &user)
 	if err != nil {
-		return helper.ErrRegisterUser
+		return err
 	}
+	return nil
+}
+
+func (u *userService) Login(ctx context.Context, req dto.LoginRequest) error {
+	err := u.validate.Struct(req)
+	if err != nil {
+		return helper.ErrValidation
+	}
+	user, err := u.userRepository.FindByEmail(ctx, req.Email)
+	if err != nil {
+		return helper.ErrEmailOrPaswordWrong
+	}
+
+	if ok := util.CheckPasswordHash(req.Password, user.Password); !ok {
+		return helper.ErrEmailOrPaswordWrong
+	}
+
+	fmt.Println(user)
 	return nil
 }

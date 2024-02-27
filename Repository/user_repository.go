@@ -21,7 +21,7 @@ func NewUserRepository(db *gorm.DB) domain.UserRepository {
 
 func (u *userRepository) FindById(ctx context.Context, userId string) (domain.User, error) {
 	user := domain.User{}
-	err := u.db.WithContext(ctx).Where("user_id = ?", userId).Take(&user).Error
+	err := u.db.WithContext(ctx).Where("id = ?", userId).Take(&user).Error
 	if err != nil {
 		log.Println(err)
 		return domain.User{}, err
@@ -55,12 +55,12 @@ func (u *userRepository) Insert(ctx context.Context, user *domain.User) error {
 		log.Println(err)
 		return err
 	}
-	return err
+	return nil
 }
 
 func (u *userRepository) Update(ctx context.Context, user *domain.User, userId string) error {
 	// not using db.Model because the struc and Model used is same
-	err := u.db.WithContext(ctx).Where("user_id = ?", userId).Updates(domain.User{
+	err := u.db.WithContext(ctx).Where("id = ?", userId).Updates(domain.User{
 		Username: user.Username,
 		Email:    user.Email,
 	}).Error
