@@ -15,8 +15,11 @@ func main() {
 	cnf := config.GetConfig()
 	validator := validator.New()
 	dbConnection := component.GetDBOpenConenction(cnf)
+
 	userRepository := repository.NewUserRepository(dbConnection)
-	userService := service.NewUserService(userRepository, validator, cnf)
+	tokenRepository := repository.NewTokenRepository(dbConnection)
+
+	userService := service.NewUserService(userRepository, tokenRepository, validator, cnf)
 
 	app := fiber.New()
 	api.NewAuthApi(app, userService)

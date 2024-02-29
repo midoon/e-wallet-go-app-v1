@@ -2,7 +2,7 @@ package service
 
 import (
 	"context"
-	"fmt"
+	"time"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
@@ -14,17 +14,19 @@ import (
 )
 
 type userService struct {
-	userRepository domain.UserRepository
-	validate       *validator.Validate
-	config         *config.Config
+	userRepository  domain.UserRepository
+	tokenRepository domain.TokenRepository
+	validate        *validator.Validate
+	config          *config.Config
 }
 
 // pada provider mengembalikan interface supaya ada error jika terdapat function yang belum diimplement. dan tikad menggunakan pointer pada interface return value, tetapi varibale returnnya harus pointer
-func NewUserService(userRepository domain.UserRepository, validator *validator.Validate, config *config.Config) domain.UserService {
+func NewUserService(userRepository domain.UserRepository, tokenRepository domain.TokenRepository, validator *validator.Validate, config *config.Config) domain.UserService {
 	return &userService{
-		userRepository: userRepository,
-		validate:       validator,
-		config:         config,
+		userRepository:  userRepository,
+		tokenRepository: tokenRepository,
+		validate:        validator,
+		config:          config,
 	}
 }
 
@@ -40,10 +42,10 @@ func (u *userService) Register(ctx context.Context, req dto.UserRegisterRequest)
 		return helper.ErrDuplicateData
 	}
 	hashPassword, err := util.HashPassword(req.Password)
-	id := uuid.New().String()
 	if err != nil {
 		return err
 	}
+	id := uuid.New().String()
 	user := domain.User{
 		ID:       id,
 		Username: req.Username,
@@ -58,20 +60,65 @@ func (u *userService) Register(ctx context.Context, req dto.UserRegisterRequest)
 	return nil
 }
 
-func (u *userService) Login(ctx context.Context, req dto.LoginRequest) error {
+func (u *userService) Login(ctx context.Context, req dto.LoginRequest) (dto.TokenData, error) {
 	err := u.validate.Struct(req)
 	if err != nil {
-		return helper.ErrValidation
+		return dto.TokenData{}, helper.ErrValidation
 	}
 	user, err := u.userRepository.FindByEmail(ctx, req.Email)
 	if err != nil {
-		return helper.ErrEmailOrPaswordWrong
+		return dto.TokenData{}, helper.ErrEmailOrPaswordWrong
 	}
 
 	if ok := util.CheckPasswordHash(req.Password, user.Password); !ok {
-		return helper.ErrEmailOrPaswordWrong
+		return dto.TokenData{}, helper.ErrEmailOrPaswordWrong
 	}
 
-	fmt.Println(user)
-	return nil
+	countToken, err := u.tokenRepository.CountByUserId(ctx, user.ID)
+
+	if err != nil {
+		return dto.TokenData{}, err
+	}
+
+	if countToken != 0 {
+		err := u.tokenRepository.Delete(ctx, user.ID)
+		if err != nil {
+			return dto.TokenData{}, err
+		}
+	}
+
+	// generate access token
+	atExpTime := time.Now().Add(time.Hour * 3)
+	ATClaim := util.NewJwtClaim(user.ID, user.Email, u.config.JWT.Issuer, atExpTime)
+	aToken, err := ATClaim.SignToken(u.config.JWT.Key)
+	if err != nil {
+		return dto.TokenData{}, err
+	}
+
+	// generate refresh token
+	rtExpTime := time.Now().Add(time.Hour * 24 * 3)
+	RTClaim := util.NewJwtClaim(user.ID, user.Email, u.config.JWT.Issuer, rtExpTime)
+	rToken, err := RTClaim.SignToken(u.config.JWT.Key)
+	if err != nil {
+		return dto.TokenData{}, err
+	}
+
+	// save refresh token to db
+	token := domain.Token{
+		UserId:       user.ID,
+		RefreshToken: rToken,
+	}
+
+	err = u.tokenRepository.Insert(ctx, &token)
+	if err != nil {
+		return dto.TokenData{}, err
+	}
+
+	tokenData := dto.TokenData{
+		UserId:       user.ID,
+		AccessToken:  aToken,
+		RefreshToken: rToken,
+	}
+
+	return tokenData, nil
 }

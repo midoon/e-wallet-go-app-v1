@@ -52,12 +52,18 @@ func (auth *authApi) login(ctx *fiber.Ctx) error {
 			Message: err.Error(),
 		})
 	}
-	err := auth.userService.Login(ctx.Context(), req)
+	tokenData, err := auth.userService.Login(ctx.Context(), req)
 	if err != nil {
 		return ctx.Status(helper.HttpStatusErr(err)).JSON(dto.ErrorResponse{
 			Status:  false,
 			Message: err.Error(),
 		})
 	}
-	return ctx.SendStatus(200)
+
+	res := dto.LoginResponse{
+		Status:  true,
+		Message: "success login",
+		Data:    tokenData,
+	}
+	return ctx.Status(200).JSON(res)
 }

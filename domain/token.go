@@ -3,6 +3,9 @@ package domain
 import (
 	"context"
 	"time"
+
+	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
 type Token struct {
@@ -11,6 +14,16 @@ type Token struct {
 	UserId       string    `gorm:"column:user_id;uniqueIndex"`
 	CreatedAt    time.Time `gorm:"column:created_at;autoCreateTime"`
 	UpdatedAt    time.Time `gorm:"column:updated_at;autoCreateTime"`
+}
+
+// gorm hook
+func (t *Token) BeforeCreate(db *gorm.DB) error {
+	if t.ID == "" {
+		id := uuid.New().String()
+		t.ID = id
+	}
+
+	return nil
 }
 
 type TokenRepository interface {

@@ -25,7 +25,7 @@ func NewJwtClaim(id string, email string, issuer string, expTime time.Time) *JWT
 
 func (j *JWTClaim) SignToken(jwtKey string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, j)
-	signedToken, err := token.SignedString(jwtKey)
+	signedToken, err := token.SignedString([]byte(jwtKey))
 
 	if err != nil {
 		return "", err
