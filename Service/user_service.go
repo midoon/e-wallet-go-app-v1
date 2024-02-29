@@ -9,19 +9,22 @@ import (
 	"github.com/midoon/e-wallet-go-app-v1/domain"
 	"github.com/midoon/e-wallet-go-app-v1/dto"
 	"github.com/midoon/e-wallet-go-app-v1/helper"
+	"github.com/midoon/e-wallet-go-app-v1/internal/config"
 	"github.com/midoon/e-wallet-go-app-v1/util"
 )
 
 type userService struct {
 	userRepository domain.UserRepository
 	validate       *validator.Validate
+	config         *config.Config
 }
 
 // pada provider mengembalikan interface supaya ada error jika terdapat function yang belum diimplement. dan tikad menggunakan pointer pada interface return value, tetapi varibale returnnya harus pointer
-func NewUserService(userRepository domain.UserRepository, validator *validator.Validate) domain.UserService {
+func NewUserService(userRepository domain.UserRepository, validator *validator.Validate, config *config.Config) domain.UserService {
 	return &userService{
 		userRepository: userRepository,
 		validate:       validator,
+		config:         config,
 	}
 }
 

@@ -3,6 +3,7 @@ package config
 type Config struct {
 	Server   Server
 	Database Database
+	JWT      JWT
 }
 
 type Server struct {
@@ -16,4 +17,9 @@ type Database struct {
 	Username string
 	Password string
 	DBName   string
+}
+
+type JWT struct {
+	Key    string
+	Issuer string
 }
