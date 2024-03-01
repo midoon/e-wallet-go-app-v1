@@ -11,26 +11,27 @@ type authApi struct {
 	userService domain.UserService
 }
 
-func NewAuthApi(app *fiber.App, userService domain.UserService) {
+func NewAuthApi(app *fiber.App, userService domain.UserService, authMidd fiber.Handler) {
 	handler := authApi{
 		userService: userService,
 	}
-	app.Post("/api/register", handler.register)
-	app.Post("/api/login", handler.login)
+	app.Post("/api/auth/register", handler.register)
+	app.Post("/api/auth/login", handler.login)
+	app.Delete("/api/auth/logout", authMidd, handler.logout)
 }
 
-func (auth *authApi) register(ctx *fiber.Ctx) error {
+func (auth *authApi) register(fctx *fiber.Ctx) error {
 	var req dto.UserRegisterRequest
-	if err := ctx.BodyParser(&req); err != nil {
-		return ctx.Status(helper.HttpStatusErr(err)).JSON(dto.ErrorResponse{
+	if err := fctx.BodyParser(&req); err != nil {
+		return fctx.Status(helper.HttpStatusErr(err)).JSON(dto.ErrorResponse{
 			Status:  false,
 			Message: err.Error(),
 		})
 	}
 
-	err := auth.userService.Register(ctx.Context(), req)
+	err := auth.userService.Register(fctx.Context(), req)
 	if err != nil {
-		return ctx.Status(helper.HttpStatusErr(err)).JSON(dto.ErrorResponse{
+		return fctx.Status(helper.HttpStatusErr(err)).JSON(dto.ErrorResponse{
 			Status:  false,
 			Message: err.Error(),
 		})
@@ -41,20 +42,20 @@ func (auth *authApi) register(ctx *fiber.Ctx) error {
 		Message: "success register",
 	}
 
-	return ctx.Status(200).JSON(res)
+	return fctx.Status(200).JSON(res)
 }
 
-func (auth *authApi) login(ctx *fiber.Ctx) error {
+func (auth *authApi) login(fctx *fiber.Ctx) error {
 	var req dto.LoginRequest
-	if err := ctx.BodyParser(&req); err != nil {
-		return ctx.Status(helper.HttpStatusErr(err)).JSON(dto.ErrorResponse{
+	if err := fctx.BodyParser(&req); err != nil {
+		return fctx.Status(helper.HttpStatusErr(err)).JSON(dto.ErrorResponse{
 			Status:  false,
 			Message: err.Error(),
 		})
 	}
-	tokenData, err := auth.userService.Login(ctx.Context(), req)
+	tokenData, err := auth.userService.Login(fctx.Context(), req)
 	if err != nil {
-		return ctx.Status(helper.HttpStatusErr(err)).JSON(dto.ErrorResponse{
+		return fctx.Status(helper.HttpStatusErr(err)).JSON(dto.ErrorResponse{
 			Status:  false,
 			Message: err.Error(),
 		})
@@ -65,5 +66,22 @@ func (auth *authApi) login(ctx *fiber.Ctx) error {
 		Message: "success login",
 		Data:    tokenData,
 	}
-	return ctx.Status(200).JSON(res)
+	return fctx.Status(200).JSON(res)
+}
+
+func (auth *authApi) logout(fctx *fiber.Ctx) error {
+	userId := fctx.Locals("x-user-id").(string)
+	err := auth.userService.Logout(fctx.Context(), string(userId))
+	if err != nil {
+		return fctx.Status(helper.HttpStatusErr(err)).JSON(dto.ErrorResponse{
+			Status:  false,
+			Message: err.Error(),
+		})
+	}
+
+	res := dto.LogoutResponse{
+		Status:  true,
+		Message: "success logout",
+	}
+	return fctx.Status(200).JSON(res)
 }

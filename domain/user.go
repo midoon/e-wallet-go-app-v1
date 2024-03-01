@@ -28,4 +28,5 @@ type UserRepository interface {
 type UserService interface {
 	Register(ctx context.Context, req dto.UserRegisterRequest) error
 	Login(ctx context.Context, req dto.LoginRequest) (dto.TokenData, error)
+	Logout(ctx context.Context, userId string) error
 }

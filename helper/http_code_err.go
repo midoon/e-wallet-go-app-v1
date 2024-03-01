@@ -8,6 +8,8 @@ func HttpStatusErr(err error) int {
 		return 401
 	case errors.Is(err, ErrValidation):
 		return 403
+	case errors.Is(err, ErrJwtValidation) || errors.Is(err, ErrAccessDenied):
+		return 403
 	default:
 		return 500
 	}

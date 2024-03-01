@@ -8,6 +8,7 @@ import (
 	"github.com/midoon/e-wallet-go-app-v1/api"
 	"github.com/midoon/e-wallet-go-app-v1/internal/component"
 	"github.com/midoon/e-wallet-go-app-v1/internal/config"
+	"github.com/midoon/e-wallet-go-app-v1/middleware"
 )
 
 func main() {
@@ -21,8 +22,11 @@ func main() {
 
 	userService := service.NewUserService(userRepository, tokenRepository, validator, cnf)
 
+	authMidd := middleware.AuthMiddleware(cnf)
+
 	app := fiber.New()
-	api.NewAuthApi(app, userService)
+	api.NewAuthApi(app, userService, authMidd)
+
 	err := app.Listen(cnf.Server.Host + ":" + cnf.Server.Port)
 	if err != nil {
 		panic(err)

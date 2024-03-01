@@ -122,3 +122,19 @@ func (u *userService) Login(ctx context.Context, req dto.LoginRequest) (dto.Toke
 
 	return tokenData, nil
 }
+
+func (u *userService) Logout(ctx context.Context, userId string) error {
+	countUser, err := u.tokenRepository.CountByUserId(ctx, userId)
+	if err != nil {
+		return err
+	}
+	if countUser == 0 {
+		return helper.ErrAccessDenied
+	}
+	err = u.tokenRepository.Delete(ctx, userId)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
