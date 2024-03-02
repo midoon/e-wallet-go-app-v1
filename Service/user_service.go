@@ -6,7 +6,6 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	"github.com/golang-jwt/jwt/v4"
-	"github.com/google/uuid"
 	"github.com/midoon/e-wallet-go-app-v1/domain"
 	"github.com/midoon/e-wallet-go-app-v1/dto"
 	"github.com/midoon/e-wallet-go-app-v1/helper"
@@ -46,9 +45,8 @@ func (u *userService) Register(ctx context.Context, req dto.UserRegisterRequest)
 	if err != nil {
 		return err
 	}
-	id := uuid.New().String()
+
 	user := domain.User{
-		ID:       id,
 		Username: req.Username,
 		Password: hashPassword,
 		Email:    req.Email,

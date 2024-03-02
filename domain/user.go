@@ -4,7 +4,9 @@ import (
 	"context"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/midoon/e-wallet-go-app-v1/dto"
+	"gorm.io/gorm"
 )
 
 type User struct {
@@ -15,6 +17,15 @@ type User struct {
 	CreatedAt time.Time `gorm:"column:created_at;autoCreateTime"`
 	UpdatedAt time.Time `gorm:"column:updated_at;autoCreateTime"`
 	Token     Token     `gorm:"foreignKey:user_id;referenceid"`
+}
+
+func (u *User) BeforeCreate(db *gorm.DB) error {
+	if u.ID == "" {
+		id := uuid.New().String()
+		u.ID = id
+	}
+
+	return nil
 }
 
 type UserRepository interface {
