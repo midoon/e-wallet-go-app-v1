@@ -17,6 +17,7 @@ func NewAuthApi(app *fiber.App, userService domain.UserService, authMidd fiber.H
 	}
 	app.Post("/api/auth/register", handler.register)
 	app.Post("/api/auth/login", handler.login)
+	app.Post("/api/auth/refresh", handler.refresh)
 	app.Delete("/api/auth/logout", authMidd, handler.logout)
 }
 
@@ -65,6 +66,29 @@ func (auth *authApi) login(fctx *fiber.Ctx) error {
 		Status:  true,
 		Message: "success login",
 		Data:    tokenData,
+	}
+	return fctx.Status(200).JSON(res)
+}
+
+func (auth *authApi) refresh(fctx *fiber.Ctx) error {
+	var req dto.RefreshRequest
+	if err := fctx.BodyParser(&req); err != nil {
+		return fctx.Status(helper.HttpStatusErr(err)).JSON(dto.ErrorResponse{
+			Status:  false,
+			Message: err.Error(),
+		})
+	}
+	dataToken, err := auth.userService.Refresh(fctx.Context(), req)
+	if err != nil {
+		return fctx.Status(helper.HttpStatusErr(err)).JSON(dto.ErrorResponse{
+			Status:  false,
+			Message: err.Error(),
+		})
+	}
+	res := dto.RefreshResponse{
+		Status:  true,
+		Message: "success refresh token",
+		Data:    dataToken,
 	}
 	return fctx.Status(200).JSON(res)
 }

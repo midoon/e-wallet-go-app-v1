@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/go-playground/validator/v10"
+	"github.com/golang-jwt/jwt/v4"
 	"github.com/google/uuid"
 	"github.com/midoon/e-wallet-go-app-v1/domain"
 	"github.com/midoon/e-wallet-go-app-v1/dto"
@@ -137,4 +138,48 @@ func (u *userService) Logout(ctx context.Context, userId string) error {
 	}
 
 	return nil
+}
+
+func (u *userService) Refresh(ctx context.Context, req dto.RefreshRequest) (dto.RefreshData, error) {
+	err := u.validate.Struct(req)
+	if err != nil {
+		return dto.RefreshData{}, nil
+	}
+
+	token, err := jwt.Parse(req.RefreshToken, func(token *jwt.Token) (interface{}, error) {
+		if method, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, helper.ErrJwtValidation
+		} else if method != jwt.SigningMethodHS256 {
+			return nil, helper.ErrJwtValidation
+		}
+
+		return []byte(u.config.JWT.Key), nil
+	})
+
+	if err != nil {
+		return dto.RefreshData{}, err
+	}
+	claims := token.Claims.(jwt.MapClaims)
+
+	// check is user logged
+	countUser, err := u.tokenRepository.CountByUserId(ctx, claims["Id"].(string))
+	if err != nil {
+		return dto.RefreshData{}, err
+	}
+	if countUser == 0 {
+		return dto.RefreshData{}, helper.ErrAccessDenied
+	}
+
+	// generate new access token
+	atExpTime := time.Now().Add(time.Hour * 3)
+	ATClaim := util.NewJwtClaim(claims["Id"].(string), claims["Email"].(string), u.config.JWT.Issuer, atExpTime)
+	aToken, err := ATClaim.SignToken(u.config.JWT.Key)
+	if err != nil {
+		return dto.RefreshData{}, err
+	}
+
+	refreshData := dto.RefreshData{
+		AccessToken: aToken,
+	}
+	return refreshData, nil
 }
