@@ -19,8 +19,9 @@ func main() {
 
 	userRepository := repository.NewUserRepository(dbConnection)
 	tokenRepository := repository.NewTokenRepository(dbConnection)
+	accountRepository := repository.NewAccountRepository(dbConnection)
 
-	userService := service.NewUserService(userRepository, tokenRepository, validator, cnf)
+	userService := service.NewUserService(userRepository, tokenRepository, accountRepository, validator, cnf)
 
 	authMidd := middleware.AuthMiddleware(cnf)
 

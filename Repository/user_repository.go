@@ -19,6 +19,7 @@ func NewUserRepository(db *gorm.DB) domain.UserRepository {
 	}
 }
 
+// data yang dikirimkan sebagai query harus berupa pointer
 func (u *userRepository) FindById(ctx context.Context, userId string) (domain.User, error) {
 	user := domain.User{}
 	err := u.db.WithContext(ctx).Where("id = ?", userId).Take(&user).Error

@@ -16,7 +16,8 @@ type User struct {
 	Email     string    `gorm:"column:email;uniqueIndex"`
 	CreatedAt time.Time `gorm:"column:created_at;autoCreateTime"`
 	UpdatedAt time.Time `gorm:"column:updated_at;autoCreateTime"`
-	Token     Token     `gorm:"foreignKey:user_id;referenceid"`
+	Token     Token     `gorm:"foreignKey:user_id;references:id"`
+	Account   Account   `grom:"foreignKey:user_id;references:id"`
 }
 
 func (u *User) BeforeCreate(db *gorm.DB) error {

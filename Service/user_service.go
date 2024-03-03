@@ -14,19 +14,21 @@ import (
 )
 
 type userService struct {
-	userRepository  domain.UserRepository
-	tokenRepository domain.TokenRepository
-	validate        *validator.Validate
-	config          *config.Config
+	userRepository    domain.UserRepository
+	tokenRepository   domain.TokenRepository
+	accountRepository domain.AccountRepository
+	validate          *validator.Validate
+	config            *config.Config
 }
 
 // pada provider mengembalikan interface supaya ada error jika terdapat function yang belum diimplement. dan tikad menggunakan pointer pada interface return value, tetapi varibale returnnya harus pointer
-func NewUserService(userRepository domain.UserRepository, tokenRepository domain.TokenRepository, validator *validator.Validate, config *config.Config) domain.UserService {
+func NewUserService(userRepository domain.UserRepository, tokenRepository domain.TokenRepository, accountRepository domain.AccountRepository, validator *validator.Validate, config *config.Config) domain.UserService {
 	return &userService{
-		userRepository:  userRepository,
-		tokenRepository: tokenRepository,
-		validate:        validator,
-		config:          config,
+		userRepository:    userRepository,
+		tokenRepository:   tokenRepository,
+		accountRepository: accountRepository,
+		validate:          validator,
+		config:            config,
 	}
 }
 
@@ -41,6 +43,7 @@ func (u *userService) Register(ctx context.Context, req dto.UserRegisterRequest)
 	} else if countEmail != 0 {
 		return helper.ErrDuplicateData
 	}
+
 	hashPassword, err := util.HashPassword(req.Password)
 	if err != nil {
 		return err
@@ -56,6 +59,29 @@ func (u *userService) Register(ctx context.Context, req dto.UserRegisterRequest)
 	if err != nil {
 		return err
 	}
+
+	registeredUser, err := u.userRepository.FindByEmail(ctx, req.Email)
+	if err != nil {
+		return err
+	}
+
+	hashPin, err := util.HashPassword(req.Pin)
+	if err != nil {
+		return err
+	}
+
+	account := domain.Account{
+		AccountNumber: req.AccountNumber,
+		Balance:       0,
+		Pin:           hashPin,
+		UserId:        registeredUser.ID,
+	}
+
+	err = u.accountRepository.Insert(ctx, &account)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 

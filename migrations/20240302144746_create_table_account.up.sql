@@ -1,7 +1,7 @@
 CREATE TABLE `accounts` (
     `id` VARCHAR(255) NOT NULL,
     `account_number` VARCHAR(20) NOT NULL,
-    `pin`  INT NOT NULL,
+    `pin`  TEXT NOT NULL,
     `balance` FLOAT NOT NULL,
     `user_id` VARCHAR(255) NOT NULL,
     `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
