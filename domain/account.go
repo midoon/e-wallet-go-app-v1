@@ -29,4 +29,7 @@ func (a *Account) BeforeCreate(db *gorm.DB) error {
 
 type AccountRepository interface {
 	Insert(ctx context.Context, account *Account) error
+	Update(ctx context.Context, account *Account, accountId string) error
+	FindByAccNum(ctx context.Context, accNum string) (Account, error)
+	FindById(ctx context.Context, accountId string) (Account, error)
 }

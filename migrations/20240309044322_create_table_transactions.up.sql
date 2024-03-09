@@ -2,7 +2,7 @@ CREATE TABLE `transactions` (
     `id` VARCHAR(255) NOT NULL,
     `sof_number` VARCHAR(20) NOT NULL,
     `dof_number` VARCHAR(20) NOT NULL,
-    `amount` INT NOT NULL,
+    `amount` FLOAT NOT NULL,
     `transaction_type` VARCHAR(1) NOT NULL ,
     `account_id` VARCHAR(255) NOT NULL,
     `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,

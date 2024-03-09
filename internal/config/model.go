@@ -4,6 +4,7 @@ type Config struct {
 	Server   Server
 	Database Database
 	JWT      JWT
+	Redis    Redis
 }
 
 type Server struct {
@@ -22,4 +23,9 @@ type Database struct {
 type JWT struct {
 	Key    string
 	Issuer string
+}
+
+type Redis struct {
+	Addr     string
+	Password string
 }

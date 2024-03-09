@@ -30,5 +30,9 @@ func GetConfig() *Config {
 			Key:    os.Getenv("JWT_KEY"),
 			Issuer: os.Getenv("JWT_ISSUER"),
 		},
+		Redis{
+			Addr:     os.Getenv("REDIS_ADDR"),
+			Password: os.Getenv("REDIS_PASSWORD"),
+		},
 	}
 }

@@ -26,3 +26,15 @@ func (a *accountRepository) Insert(ctx context.Context, account *domain.Account)
 	}
 	return nil
 }
+
+func (a *accountRepository) Update(ctx context.Context, account *domain.Account, accountId string) error {
+	panic("not implemented") // TODO: Implement
+}
+
+func (a *accountRepository) FindByAccNum(ctx context.Context, accNum string) (domain.Account, error) {
+	panic("not implemented") // TODO: Implement
+}
+
+func (a *accountRepository) FindById(ctx context.Context, accountId string) (domain.Account, error) {
+	panic("not implemented") // TODO: Implement
+}
