@@ -10,3 +10,12 @@
 
 5. execute migration: $ migrate -database "mysql://[user]:[passsword]@tcp(localhost:3306)/[db_name]" -path [directory migration file] [up/down]
 => migrate -database "mysql://root:root@tcp(localhost:3306)/ewallet" -path migrations up
+
+=== NOTE IF DIRTY DB IS EXIST ==
+
+1. kembali ke versi migrasi sebelum DIRTY
+=> migrate -database "mysql://root:root@tcp(localhost:3306)/ewallet" -path migrations force [versi migration]
+=> migrate -database "mysql://root:root@tcp(localhost:3306)/ewallet" -path migrations force 20240302144746
+
+2. untuk melihat versi migrasi saat ini
+=> migrate -database "mysql://root:root@tcp(localhost:3306)/ewallet" -path migrations version
