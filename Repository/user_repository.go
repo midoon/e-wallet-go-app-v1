@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"fmt"
 	"log"
 
 	"github.com/midoon/e-wallet-go-app-v1/domain"
@@ -66,7 +65,7 @@ func (u *userRepository) Update(ctx context.Context, user *domain.User, userId s
 		Email:    user.Email,
 	}).Error
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		return err
 	}
 	return nil

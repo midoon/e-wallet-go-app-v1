@@ -28,13 +28,33 @@ func (a *accountRepository) Insert(ctx context.Context, account *domain.Account)
 }
 
 func (a *accountRepository) Update(ctx context.Context, account *domain.Account, accountId string) error {
-	panic("not implemented") // TODO: Implement
+	err := a.db.WithContext(ctx).Where("id = ?", accountId).Updates(domain.Account{
+		Balance: account.Balance,
+	}).Error
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	return nil
 }
 
 func (a *accountRepository) FindByAccNum(ctx context.Context, accNum string) (domain.Account, error) {
-	panic("not implemented") // TODO: Implement
+	account := domain.Account{}
+	err := a.db.WithContext(ctx).Where("account_number = ?", accNum).Take(&account).Error
+	if err != nil {
+		log.Println(err)
+		return domain.Account{}, err
+	}
+	return account, nil
+
 }
 
 func (a *accountRepository) FindById(ctx context.Context, accountId string) (domain.Account, error) {
-	panic("not implemented") // TODO: Implement
+	account := domain.Account{}
+	err := a.db.WithContext(ctx).Where("id = ?", accountId).Take(&account).Error
+	if err != nil {
+		log.Println(err)
+		return domain.Account{}, err
+	}
+	return account, nil
 }
