@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/midoon/e-wallet-go-app-v1/domain"
 	"github.com/midoon/e-wallet-go-app-v1/dto"
@@ -21,6 +22,7 @@ func NewTransactionService(transactionRepository domain.TransactionRepository, r
 }
 
 func (t *transactionService) TransferInquiry(ctx context.Context, req dto.TransferInquiryRequest) (dto.InquirryKey, error) {
+	fmt.Println(req)
 	panic("not implemented") // TODO: Implement
 }
 
