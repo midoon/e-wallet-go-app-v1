@@ -32,4 +32,5 @@ type AccountRepository interface {
 	Update(ctx context.Context, account *Account, accountId string) error
 	FindByAccNum(ctx context.Context, accNum string) (Account, error)
 	FindById(ctx context.Context, accountId string) (Account, error)
+	FindByUserId(ctx context.Context, userId string) (Account, error)
 }

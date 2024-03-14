@@ -58,3 +58,13 @@ func (a *accountRepository) FindById(ctx context.Context, accountId string) (dom
 	}
 	return account, nil
 }
+
+func (a *accountRepository) FindByUserId(ctx context.Context, userID string) (domain.Account, error) {
+	account := domain.Account{}
+	err := a.db.WithContext(ctx).Where("user_id = ?", userID).Take(&account).Error
+	if err != nil {
+		log.Println(err)
+		return domain.Account{}, err
+	}
+	return account, nil
+}

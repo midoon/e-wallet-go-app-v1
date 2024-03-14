@@ -24,7 +24,7 @@ func main() {
 	transactionRepository := repository.NewTransactionRepository(dbConnection)
 
 	userService := service.NewUserService(userRepository, tokenRepository, accountRepository, validator, cnf)
-	transactionService := service.NewTransactionService(transactionRepository, rdbConnection)
+	transactionService := service.NewTransactionService(transactionRepository, accountRepository, rdbConnection, validator)
 
 	authMidd := middleware.AuthMiddleware(cnf)
 
