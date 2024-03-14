@@ -75,5 +75,73 @@ func (t *transactionService) TransferInquiry(ctx context.Context, req dto.Transf
 }
 
 func (t *transactionService) TranferExecute(ctx context.Context, req dto.TransferExecuteRequest) error {
-	panic("not implemented") // TODO: Implement
+	err := t.validate.Struct(req)
+	if err != nil {
+		return helper.ErrValidation
+	}
+
+	myAccId := ctx.Value("x-user-id").(string)
+	myAccount, err := t.accountRepository.FindByUserId(ctx, myAccId)
+	if err != nil {
+		return helper.ErrAccountNotFound
+	}
+
+	if myAccount == (domain.Account{}) {
+		return helper.ErrAccountNotFound
+	}
+
+	if ok := util.CheckPasswordHash(req.UserPin, myAccount.Pin); !ok {
+		return helper.ErrAccessDenied
+	}
+
+	tranferData, err := t.rdb.Get(ctx, req.InquiryKey).Result()
+	if err != nil {
+		return err
+	}
+
+	var inqReq dto.TransferInquiryRequest
+	if err := json.Unmarshal([]byte(tranferData), &inqReq); err != nil {
+		return helper.ErrInquiryNotFound
+	}
+
+	if inqReq == (dto.TransferInquiryRequest{}) {
+		return helper.ErrInquiryNotFound
+	}
+
+	dofAccount, err := t.accountRepository.FindByAccNum(ctx, inqReq.DofNumber)
+	if err != nil {
+		return helper.ErrAccountNotFound
+	}
+
+	if dofAccount == (domain.Account{}) {
+		return helper.ErrAccountNotFound
+	}
+
+	debit := domain.Transaction{
+		AccountId:       myAccount.ID,
+		SofNumber:       myAccount.AccountNumber,
+		DofNumber:       dofAccount.AccountNumber,
+		Amount:          inqReq.Amount,
+		TransactionType: "D",
+	}
+
+	credit := domain.Transaction{
+		AccountId:       dofAccount.ID,
+		SofNumber:       myAccount.AccountNumber,
+		DofNumber:       dofAccount.AccountNumber,
+		Amount:          inqReq.Amount,
+		TransactionType: "C",
+	}
+
+	err = t.transactionRepository.Insert(ctx, &debit, &credit)
+	if err != nil {
+		return err
+	}
+
+	err = t.rdb.Del(ctx, req.InquiryKey).Err()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

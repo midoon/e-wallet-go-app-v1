@@ -29,7 +29,7 @@ func (t *Transaction) BeforeCreate(db *gorm.DB) error {
 }
 
 type TransactionRepository interface {
-	Insert(ctx context.Context, transaction *Transaction) error
+	Insert(ctx context.Context, debit *Transaction, credit *Transaction) error
 }
 
 type TransactionService interface {
