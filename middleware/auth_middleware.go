@@ -23,7 +23,7 @@ func AuthMiddleware(cnf *config.Config) fiber.Handler {
 			return []byte(cnf.JWT.Key), nil
 		})
 		if err != nil {
-			return c.Status(helper.HttpStatusErr(err)).JSON(dto.ErrorResponse{
+			return c.Status(helper.HttpStatusErr(err)).JSON(dto.BasicResponse{
 				Status:  false,
 				Message: err.Error(),
 			})
@@ -31,7 +31,7 @@ func AuthMiddleware(cnf *config.Config) fiber.Handler {
 
 		claims, ok := token.Claims.(jwt.MapClaims)
 		if !ok {
-			return c.Status(helper.HttpStatusErr(err)).JSON(dto.ErrorResponse{
+			return c.Status(helper.HttpStatusErr(err)).JSON(dto.BasicResponse{
 				Status:  false,
 				Message: "error  jwt parse to claim",
 			})
