@@ -35,6 +35,7 @@ type UserRepository interface {
 	CountByEmail(ctx context.Context, email string) (int64, error)
 	Insert(ctx context.Context, user *User) error
 	Update(ctx context.Context, user *User, userId string) error
+	Resgiter(ctx context.Context, req dto.UserRegisterRequest) error
 }
 
 type UserService interface {

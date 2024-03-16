@@ -5,6 +5,8 @@ import (
 	"log"
 
 	"github.com/midoon/e-wallet-go-app-v1/domain"
+	"github.com/midoon/e-wallet-go-app-v1/dto"
+	"github.com/midoon/e-wallet-go-app-v1/util"
 	"gorm.io/gorm"
 )
 
@@ -69,4 +71,49 @@ func (u *userRepository) Update(ctx context.Context, user *domain.User, userId s
 		return err
 	}
 	return nil
+}
+
+func (u *userRepository) Resgiter(ctx context.Context, req dto.UserRegisterRequest) error {
+	err := u.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		hashPassword, err := util.HashPassword(req.Password)
+		if err != nil {
+			return err
+		}
+
+		user := domain.User{
+			Username: req.Username,
+			Password: hashPassword,
+			Email:    req.Email,
+		}
+
+		err = tx.Create(&user).Error
+		if err != nil {
+			return err
+		}
+		var registeredUser domain.User
+		err = tx.Where("email = ?", req.Email).Take(&registeredUser).Error
+		if err != nil {
+			return err
+		}
+
+		hashPin, err := util.HashPassword(req.Pin)
+		if err != nil {
+			return err
+		}
+		account := domain.Account{
+			AccountNumber: req.AccountNumber,
+			Balance:       0,
+			Pin:           hashPin,
+			UserId:        registeredUser.ID,
+		}
+		err = tx.Create(&account).Error
+		if err != nil {
+			return err
+		}
+		return err
+	})
+	if err != nil {
+		log.Println(err)
+	}
+	return err
 }

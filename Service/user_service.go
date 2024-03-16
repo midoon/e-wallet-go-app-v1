@@ -44,40 +44,8 @@ func (u *userService) Register(ctx context.Context, req dto.UserRegisterRequest)
 		return helper.ErrDuplicateData
 	}
 
-	hashPassword, err := util.HashPassword(req.Password)
-	if err != nil {
-		return err
-	}
+	err = u.userRepository.Resgiter(ctx, req)
 
-	user := domain.User{
-		Username: req.Username,
-		Password: hashPassword,
-		Email:    req.Email,
-	}
-
-	err = u.userRepository.Insert(ctx, &user)
-	if err != nil {
-		return err
-	}
-
-	registeredUser, err := u.userRepository.FindByEmail(ctx, req.Email)
-	if err != nil {
-		return err
-	}
-
-	hashPin, err := util.HashPassword(req.Pin)
-	if err != nil {
-		return err
-	}
-
-	account := domain.Account{
-		AccountNumber: req.AccountNumber,
-		Balance:       0,
-		Pin:           hashPin,
-		UserId:        registeredUser.ID,
-	}
-
-	err = u.accountRepository.Insert(ctx, &account)
 	if err != nil {
 		return err
 	}
