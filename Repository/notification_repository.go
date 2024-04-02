@@ -19,9 +19,9 @@ func NewNotificationRepository(db *gorm.DB) domain.NotificationRepository {
 }
 
 // FindByUser implements domain.NotificationRepository.
-func (n *notificationRepository) FindByUser(ctx context.Context, userId string) ([]domain.Notification, error) {
+func (n *notificationRepository) FindByUserAccount(ctx context.Context, accountId string) ([]domain.Notification, error) {
 	notifications := []domain.Notification{}
-	err := n.db.WithContext(ctx).Where("user_id = ?", userId).Find(&notifications).Error
+	err := n.db.WithContext(ctx).Where("account_id = ?", accountId).Find(&notifications).Error
 	if err != nil {
 		log.Println(err)
 		return nil, err

@@ -30,10 +30,10 @@ func (n *Notification) BeforeCreate(db *gorm.DB) error {
 
 type NotificationRepository interface {
 	Insert(ctx context.Context, notification *Notification) error
-	FindByUser(ctx context.Context, userId string) ([]Notification, error)
+	FindByUserAccount(ctx context.Context, accountId string) ([]Notification, error)
 	Update(ctx context.Context, notification *Notification, notifId string) error
 }
 
 type NotificationService interface {
-	FindByUser(ctx context.Context, userId string) ([]dto.NotificationData, error)
+	FindByUserAccount(ctx context.Context, userId string) ([]dto.NotificationData, error)
 }

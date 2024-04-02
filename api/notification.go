@@ -19,7 +19,7 @@ func NewNotificationApi(notificationService domain.NotificationService, app *fib
 		notificationService: notificationService,
 	}
 
-	app.Get("api/notification", authMidd, handler.GetNotification)
+	app.Get("/api/notification", authMidd, handler.GetNotification)
 
 }
 
@@ -28,7 +28,7 @@ func (n *notificationApi) GetNotification(fctx *fiber.Ctx) error {
 	defer cancel()
 
 	userId := fctx.Locals("x-user-id").(string)
-	notifications, err := n.notificationService.FindByUser(c, userId)
+	notifications, err := n.notificationService.FindByUserAccount(c, userId)
 	if err != nil {
 		return fctx.Status(helper.HttpStatusErr(err)).JSON(dto.BasicResponse{
 			Status:  false,

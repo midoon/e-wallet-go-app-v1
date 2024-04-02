@@ -26,7 +26,7 @@ func main() {
 
 	userService := service.NewUserService(userRepository, tokenRepository, accountRepository, validator, cnf)
 	transactionService := service.NewTransactionService(transactionRepository, accountRepository, notificationRepository, rdbConnection, validator)
-	notificationService := service.NewNotificationService(notificationRepository)
+	notificationService := service.NewNotificationService(notificationRepository, accountRepository)
 
 	authMidd := middleware.AuthMiddleware(cnf)
 

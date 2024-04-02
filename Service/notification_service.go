@@ -9,19 +9,28 @@ import (
 
 type notificationService struct {
 	notificationRepository domain.NotificationRepository
+	accountRepository      domain.AccountRepository
 }
 
 // FindByUser implements domain.NotificationService.
 
-func NewNotificationService(notificationRepository domain.NotificationRepository) domain.NotificationService {
+func NewNotificationService(notificationRepository domain.NotificationRepository, accountRepository domain.AccountRepository) domain.NotificationService {
 	return &notificationService{
 		notificationRepository: notificationRepository,
+		accountRepository:      accountRepository,
 	}
 }
 
-func (n *notificationService) FindByUser(ctx context.Context, userId string) ([]dto.NotificationData, error) {
+func (n *notificationService) FindByUserAccount(ctx context.Context, userId string) ([]dto.NotificationData, error) {
+
+	// get accound by userId
+	account, err := n.accountRepository.FindByUserId(ctx, userId)
+	if err != nil {
+		return []dto.NotificationData{}, err
+	}
+
 	notifications := []dto.NotificationData{}
-	notifs, err := n.notificationRepository.FindByUser(ctx, userId)
+	notifs, err := n.notificationRepository.FindByUserAccount(ctx, account.ID)
 	if err != nil {
 		return []dto.NotificationData{}, err
 	}
