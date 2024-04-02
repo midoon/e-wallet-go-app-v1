@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/go-playground/validator/v10"
@@ -14,18 +15,20 @@ import (
 )
 
 type transactionService struct {
-	transactionRepository domain.TransactionRepository
-	accountRepository     domain.AccountRepository
-	rdb                   *redis.Client
-	validate              *validator.Validate
+	transactionRepository  domain.TransactionRepository
+	accountRepository      domain.AccountRepository
+	notificationRepository domain.NotificationRepository
+	rdb                    *redis.Client
+	validate               *validator.Validate
 }
 
-func NewTransactionService(transactionRepository domain.TransactionRepository, accountRepository domain.AccountRepository, rdb *redis.Client, validate *validator.Validate) domain.TransactionService {
+func NewTransactionService(transactionRepository domain.TransactionRepository, accountRepository domain.AccountRepository, notificationRepository domain.NotificationRepository, rdb *redis.Client, validate *validator.Validate) domain.TransactionService {
 	return &transactionService{
-		transactionRepository: transactionRepository,
-		accountRepository:     accountRepository,
-		rdb:                   rdb,
-		validate:              validate,
+		transactionRepository:  transactionRepository,
+		accountRepository:      accountRepository,
+		notificationRepository: notificationRepository,
+		rdb:                    rdb,
+		validate:               validate,
 	}
 }
 
@@ -143,5 +146,30 @@ func (t *transactionService) TranferExecute(ctx context.Context, req dto.Transfe
 		return err
 	}
 
+	// create notification data
+	go t.notificationAfterTransfer(myAccount, dofAccount, inqReq.Amount)
+
 	return nil
+}
+
+// tidak dibuatkan interface karena hanya dipakai di interenal (tidak digunakan sebagai API)
+func (t *transactionService) notificationAfterTransfer(sender domain.Account, reciever domain.Account, amount float64) {
+	senderNotificaton := domain.Notification{
+		Title:     "Transfer Berhasil",
+		Body:      fmt.Sprintf("Transfer senilai %.2f ke %s telah berhasil", amount, reciever.AccountNumber),
+		Status:    1,
+		IsRead:    0,
+		AccountId: sender.ID,
+	}
+
+	recieverNotification := domain.Notification{
+		Title:     "Dana Diterima",
+		Body:      fmt.Sprintf("Dana diterima senilai %.2f dari %s", amount, sender.AccountNumber),
+		Status:    1,
+		IsRead:    0,
+		AccountId: reciever.ID,
+	}
+
+	_ = t.notificationRepository.Insert(context.Background(), &senderNotificaton)
+	_ = t.notificationRepository.Insert(context.Background(), &recieverNotification)
 }

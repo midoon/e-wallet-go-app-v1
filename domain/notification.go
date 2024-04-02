@@ -15,7 +15,7 @@ type Notification struct {
 	Body      string    `gorm:"column:body"`
 	Status    int       `gorm:"column:status"`
 	IsRead    int       `gorm:"column:is_read"`
-	UserId    string    `gorm:"column:user_id"`
+	AccountId string    `gorm:"column:account_id"`
 	CreatedAt time.Time `gorm:"column:created_at;autoCreateTime"`
 }
 

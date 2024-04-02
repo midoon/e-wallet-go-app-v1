@@ -22,15 +22,18 @@ func main() {
 	tokenRepository := repository.NewTokenRepository(dbConnection)
 	accountRepository := repository.NewAccountRepository(dbConnection)
 	transactionRepository := repository.NewTransactionRepository(dbConnection)
+	notificationRepository := repository.NewNotificationRepository(dbConnection)
 
 	userService := service.NewUserService(userRepository, tokenRepository, accountRepository, validator, cnf)
-	transactionService := service.NewTransactionService(transactionRepository, accountRepository, rdbConnection, validator)
+	transactionService := service.NewTransactionService(transactionRepository, accountRepository, notificationRepository, rdbConnection, validator)
+	notificationService := service.NewNotificationService(notificationRepository)
 
 	authMidd := middleware.AuthMiddleware(cnf)
 
 	app := fiber.New()
 	api.NewAuthApi(app, userService, authMidd)
 	api.NewTranferApi(app, transactionService, authMidd)
+	api.NewNotificationApi(notificationService, app, authMidd)
 
 	err := app.Listen(cnf.Server.Host + ":" + cnf.Server.Port)
 	if err != nil {
