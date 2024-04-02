@@ -36,5 +36,9 @@ func (n *notificationApi) GetNotification(fctx *fiber.Ctx) error {
 		})
 	}
 
-	return fctx.Status(200).JSON(notifications)
+	return fctx.Status(200).JSON(dto.NotificationResponse{
+		Status:  true,
+		Message: "Success get notification",
+		Data:    notifications,
+	})
 }
