@@ -8,16 +8,12 @@ import (
 	"github.com/rabbitmq/amqp091-go"
 )
 
-func GetRabbitMQConnection(cnf *config.Config) *amqp091.Channel {
+func GetRabbitMQConnection(cnf *config.Config) *amqp091.Connection {
 	uri := fmt.Sprintf("amqp://%s:%s@%s:%s%s", cnf.RabbitMQ.Username, cnf.RabbitMQ.Password, cnf.RabbitMQ.Host, cnf.RabbitMQ.Port, cnf.RabbitMQ.User)
 	connection, err := amqp091.Dial(uri)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	rmqChannel, err := connection.Channel()
-	if err != nil {
-		log.Fatal(err)
-	}
-	return rmqChannel
+	return connection
 }
