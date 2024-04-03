@@ -1,12 +1,5 @@
 package config
 
-type Config struct {
-	Server   Server
-	Database Database
-	JWT      JWT
-	Redis    Redis
-}
-
 type Server struct {
 	Host string
 	Port string
@@ -28,4 +21,12 @@ type JWT struct {
 type Redis struct {
 	Addr     string
 	Password string
+}
+
+type RabbitMQ struct {
+	Username string
+	Password string
+	Host     string
+	Port     string
+	User     string
 }

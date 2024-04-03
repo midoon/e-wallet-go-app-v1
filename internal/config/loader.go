@@ -7,6 +7,14 @@ import (
 	"github.com/joho/godotenv"
 )
 
+type Config struct {
+	Server   Server
+	Database Database
+	JWT      JWT
+	Redis    Redis
+	RabbitMQ RabbitMQ
+}
+
 func GetConfig() *Config {
 	err := godotenv.Load()
 
@@ -33,6 +41,13 @@ func GetConfig() *Config {
 		Redis{
 			Addr:     os.Getenv("REDIS_ADDR"),
 			Password: os.Getenv("REDIS_PASSWORD"),
+		},
+		RabbitMQ{
+			Username: os.Getenv("MQ_USERNAME"),
+			Password: os.Getenv("MQ_PASSWORD"),
+			Host:     os.Getenv("MQ_HOST"),
+			Port:     os.Getenv("MQ_PORT"),
+			User:     os.Getenv("MQ_USER"),
 		},
 	}
 }
