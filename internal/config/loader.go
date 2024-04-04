@@ -48,6 +48,9 @@ func GetConfig() *Config {
 			Host:     os.Getenv("MQ_HOST"),
 			Port:     os.Getenv("MQ_PORT"),
 			User:     os.Getenv("MQ_USER"),
+			Exchange: os.Getenv("MQ_EXCHANGE"),
+			RKey:     os.Getenv("MQ_RKEY"),
+			Queue:    os.Getenv("MQ_QUEUE"),
 		},
 	}
 }

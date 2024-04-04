@@ -17,6 +17,7 @@ func main() {
 	validator := validator.New()
 	dbConnection := component.GetDBOpenConenction(cnf)
 	rdbConnection := component.GetRedisConnection(cnf)
+	rmqConnection := component.GetRabbitMQConnection(cnf)
 
 	userRepository := repository.NewUserRepository(dbConnection)
 	tokenRepository := repository.NewTokenRepository(dbConnection)
@@ -25,7 +26,7 @@ func main() {
 	notificationRepository := repository.NewNotificationRepository(dbConnection)
 
 	userService := service.NewUserService(userRepository, tokenRepository, accountRepository, validator, cnf)
-	transactionService := service.NewTransactionService(transactionRepository, accountRepository, notificationRepository, rdbConnection, validator)
+	transactionService := service.NewTransactionService(transactionRepository, accountRepository, notificationRepository, rdbConnection, validator, rmqConnection, cnf)
 	notificationService := service.NewNotificationService(notificationRepository, accountRepository)
 
 	authMidd := middleware.AuthMiddleware(cnf)

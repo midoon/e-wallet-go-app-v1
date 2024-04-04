@@ -29,4 +29,7 @@ type RabbitMQ struct {
 	Host     string
 	Port     string
 	User     string
+	Exchange string
+	RKey     string
+	Queue    string
 }

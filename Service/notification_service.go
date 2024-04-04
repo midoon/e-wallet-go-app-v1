@@ -41,6 +41,7 @@ func (n *notificationService) FindByUserAccount(ctx context.Context, userId stri
 			Body:      val.Body,
 			Status:    val.Status,
 			IsRead:    val.IsRead,
+			AccountId: val.AccountId,
 			CreatedAt: val.CreatedAt,
 		})
 	}

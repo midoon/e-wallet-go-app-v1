@@ -9,11 +9,10 @@ import (
 )
 
 func GetRabbitMQConnection(cnf *config.Config) *amqp091.Connection {
-	uri := fmt.Sprintf("amqp://%s:%s@%s:%s%s", cnf.RabbitMQ.Username, cnf.RabbitMQ.Password, cnf.RabbitMQ.Host, cnf.RabbitMQ.Port, cnf.RabbitMQ.User)
+	uri := fmt.Sprintf("amqp://%s:%s@%s:%s/%s", cnf.RabbitMQ.Username, cnf.RabbitMQ.Password, cnf.RabbitMQ.Host, cnf.RabbitMQ.Port, cnf.RabbitMQ.User)
 	connection, err := amqp091.Dial(uri)
 	if err != nil {
 		log.Fatal(err)
 	}
-
 	return connection
 }
