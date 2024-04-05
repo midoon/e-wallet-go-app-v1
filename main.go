@@ -6,6 +6,7 @@ import (
 	"github.com/midoon/e-wallet-go-app-v1/api"
 	"github.com/midoon/e-wallet-go-app-v1/internal/component"
 	"github.com/midoon/e-wallet-go-app-v1/internal/config"
+	"github.com/midoon/e-wallet-go-app-v1/internal/sse"
 	"github.com/midoon/e-wallet-go-app-v1/middleware"
 	"github.com/midoon/e-wallet-go-app-v1/repository"
 	"github.com/midoon/e-wallet-go-app-v1/service"
@@ -17,7 +18,8 @@ func main() {
 	validator := validator.New()
 	dbConnection := component.GetDBOpenConenction(cnf)
 	rdbConnection := component.GetRedisConnection(cnf)
-	rmqConnection := component.GetRabbitMQConnection(cnf)
+	rmqConnection := component.GetRabbitMQConn(cnf)
+	defer rmqConnection.Close()
 
 	userRepository := repository.NewUserRepository(dbConnection)
 	tokenRepository := repository.NewTokenRepository(dbConnection)
@@ -27,7 +29,7 @@ func main() {
 
 	userService := service.NewUserService(userRepository, tokenRepository, accountRepository, validator, cnf)
 	transactionService := service.NewTransactionService(transactionRepository, accountRepository, notificationRepository, rdbConnection, validator, rmqConnection, cnf)
-	notificationService := service.NewNotificationService(notificationRepository, accountRepository)
+	notificationService := service.NewNotificationService(notificationRepository, accountRepository, rmqConnection, cnf)
 
 	authMidd := middleware.AuthMiddleware(cnf)
 
@@ -35,6 +37,9 @@ func main() {
 	api.NewAuthApi(app, userService, authMidd)
 	api.NewTranferApi(app, transactionService, authMidd)
 	api.NewNotificationApi(notificationService, app, authMidd)
+
+	//SSE
+	sse.NewNotificationStream(rmqConnection, notificationService, cnf, app, authMidd)
 
 	err := app.Listen(cnf.Server.Host + ":" + cnf.Server.Port)
 	if err != nil {

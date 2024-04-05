@@ -36,4 +36,6 @@ type NotificationRepository interface {
 
 type NotificationService interface {
 	FindByUserAccount(ctx context.Context, userId string) ([]dto.NotificationData, error)
+	FindAccountIdByUserId(ctx context.Context, userId string) string
+	StreamNotif(ctx context.Context, accountId string, msgChan chan<- dto.NotificationData)
 }

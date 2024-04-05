@@ -224,13 +224,12 @@ func (t *transactionService) publishNotifToMQ(senderNotif domain.Notification, r
 	senderMsg, _ := json.Marshal(senderData)
 	recieverrMsg, _ := json.Marshal(recieverData)
 
-	conn := t.mqConnection
-	defer conn.Close()
-
-	channel, err := conn.Channel()
+	channel, err := t.mqConnection.Channel()
 	if err != nil {
 		log.Println(err)
 	}
+
+	defer channel.Close()
 
 	messageSender := amqp091.Publishing{
 		ContentType: "application/json",
