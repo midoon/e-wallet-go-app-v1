@@ -1,0 +1,2 @@
+=> apa yang perllu diimprove?
+- Pada setiap tabel, referensinya harusnya ke user, bukan account
