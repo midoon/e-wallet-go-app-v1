@@ -26,10 +26,13 @@ func main() {
 	accountRepository := repository.NewAccountRepository(dbConnection)
 	transactionRepository := repository.NewTransactionRepository(dbConnection)
 	notificationRepository := repository.NewNotificationRepository(dbConnection)
+	topupRepository := repository.NewTopUpRepository(dbConnection)
 
 	userService := service.NewUserService(userRepository, tokenRepository, accountRepository, validator, cnf)
 	transactionService := service.NewTransactionService(transactionRepository, accountRepository, notificationRepository, rdbConnection, validator, rmqConnection, cnf)
 	notificationService := service.NewNotificationService(notificationRepository, accountRepository, rmqConnection, cnf)
+	midtransService := service.NewMidtransService(cnf)
+	topupService := service.NewTopupService(notificationRepository, topupRepository, midtransService, accountRepository)
 
 	authMidd := middleware.AuthMiddleware(cnf)
 
@@ -37,6 +40,8 @@ func main() {
 	api.NewAuthApi(app, userService, authMidd)
 	api.NewTranferApi(app, transactionService, authMidd)
 	api.NewNotificationApi(notificationService, app, authMidd)
+	api.NewTopUpApi(app, authMidd, topupService)
+	api.NewMidtransApi(app, midtransService, topupService)
 
 	//SSE
 	sse.NewNotificationStream(rmqConnection, notificationService, cnf, app, authMidd)

@@ -33,3 +33,8 @@ type RabbitMQ struct {
 	RKey     string
 	Queue    string
 }
+
+type Midtrans struct {
+	Key    string
+	IsProd bool
+}

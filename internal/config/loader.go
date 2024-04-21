@@ -13,6 +13,7 @@ type Config struct {
 	JWT      JWT
 	Redis    Redis
 	RabbitMQ RabbitMQ
+	Midtrans Midtrans
 }
 
 func GetConfig() *Config {
@@ -51,6 +52,10 @@ func GetConfig() *Config {
 			Exchange: os.Getenv("MQ_EXCHANGE"),
 			RKey:     os.Getenv("MQ_RKEY"),
 			Queue:    os.Getenv("MQ_QUEUE"),
+		},
+		Midtrans{
+			Key:    os.Getenv("MIDTRANS_KEY"),
+			IsProd: os.Getenv("MIDTRANS_ENV") == "production",
 		},
 	}
 }
