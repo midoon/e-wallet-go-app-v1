@@ -30,6 +30,7 @@ func (t *Transaction) BeforeCreate(db *gorm.DB) error {
 
 type TransactionRepository interface {
 	Insert(ctx context.Context, debit *Transaction, credit *Transaction) error
+	InsertFromMidtrans(ctx context.Context, transaction *Transaction) error
 }
 
 type TransactionService interface {

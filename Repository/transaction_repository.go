@@ -64,3 +64,12 @@ func (t *transactionRespository) Insert(ctx context.Context, debit *domain.Trans
 
 	return nil
 }
+
+func (t *transactionRespository) InsertFromMidtrans(ctx context.Context, transaction *domain.Transaction) error {
+	err := t.db.WithContext(ctx).Create(transaction).Error
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	return nil
+}

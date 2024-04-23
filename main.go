@@ -32,7 +32,7 @@ func main() {
 	transactionService := service.NewTransactionService(transactionRepository, accountRepository, notificationRepository, rdbConnection, validator, rmqConnection, cnf)
 	notificationService := service.NewNotificationService(notificationRepository, accountRepository, rmqConnection, cnf)
 	midtransService := service.NewMidtransService(cnf)
-	topupService := service.NewTopupService(notificationRepository, topupRepository, midtransService, accountRepository)
+	topupService := service.NewTopupService(notificationRepository, topupRepository, midtransService, accountRepository, transactionRepository)
 
 	authMidd := middleware.AuthMiddleware(cnf)
 

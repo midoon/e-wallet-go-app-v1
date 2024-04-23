@@ -1,3 +1,4 @@
 => apa yang perllu diimprove?
 - Pada setiap tabel, referensinya harusnya ke user, bukan account
 - fitur notifikasi  perlu difix bug terkait channel connection dari message broker
+- bug midtrans simulator via bca VA send 2 kali transaction

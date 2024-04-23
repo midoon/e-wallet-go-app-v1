@@ -15,14 +15,16 @@ type topupService struct {
 	topupRepository        domain.TopupRepository
 	midtransService        domain.MidtransService
 	accountRepository      domain.AccountRepository
+	transactionRepository  domain.TransactionRepository
 }
 
-func NewTopupService(notificationRepository domain.NotificationRepository, topupRepository domain.TopupRepository, midtransService domain.MidtransService, accountRepository domain.AccountRepository) domain.TopupService {
+func NewTopupService(notificationRepository domain.NotificationRepository, topupRepository domain.TopupRepository, midtransService domain.MidtransService, accountRepository domain.AccountRepository, transactionRepository domain.TransactionRepository) domain.TopupService {
 	return &topupService{
 		notificationRepository: notificationRepository,
 		topupRepository:        topupRepository,
 		midtransService:        midtransService,
 		accountRepository:      accountRepository,
+		transactionRepository:  transactionRepository,
 	}
 }
 
@@ -51,6 +53,14 @@ func (t *topupService) ConfirmedTopUp(ctx context.Context, id string) error {
 	if err != nil {
 		return err
 	}
+
+	err = t.transactionRepository.InsertFromMidtrans(ctx, &domain.Transaction{
+		AccountId:       account.ID,
+		SofNumber:       "00",
+		DofNumber:       account.AccountNumber,
+		TransactionType: "C",
+		Amount:          topUP.Amount,
+	})
 
 	notif := domain.Notification{
 		Title:     "top-up",
