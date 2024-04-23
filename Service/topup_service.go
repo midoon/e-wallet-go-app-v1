@@ -76,6 +76,11 @@ func (t *topupService) InitializeTopUp(ctx context.Context, req dto.TopUpRequest
 		return dto.TopUpResponse{}, err
 	}
 
+	err = t.topupRepository.Insert(ctx, &topUp)
+	if err != nil {
+		return dto.TopUpResponse{}, err
+	}
+
 	return dto.TopUpResponse{
 		SnapUrl: topUp.SnapUrl,
 	}, nil
